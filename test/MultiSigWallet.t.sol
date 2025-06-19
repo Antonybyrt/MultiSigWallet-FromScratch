@@ -147,10 +147,8 @@ contract MultiSigWalletTest is Test {
     function test_ConfirmTransaction_AlreadyConfirmed() public {
         vm.prank(signer1);
         wallet.submitTransaction(recipient, 1 ether, "");
-        
         vm.prank(signer2);
         wallet.confirmTransaction(0);
-        
         vm.prank(signer2);
         vm.expectRevert(MultiSigWallet.ALREADY_CONFIRMED.selector);
         wallet.confirmTransaction(0);
@@ -158,16 +156,12 @@ contract MultiSigWalletTest is Test {
 
     function test_ConfirmTransaction_AlreadyExecuted() public {
         vm.deal(address(wallet), 10 ether);
-        
         vm.prank(signer1);
         wallet.submitTransaction(recipient, 1 ether, "");
-        
         vm.prank(signer2);
         wallet.confirmTransaction(0);
-        
         vm.prank(signer3);
         wallet.confirmTransaction(0);
-
         vm.prank(signer1);
         vm.expectRevert(MultiSigWallet.ALREADY_EXECUTED.selector);
         wallet.confirmTransaction(0);
@@ -203,19 +197,35 @@ contract MultiSigWalletTest is Test {
 
     function test_RevokeConfirmation_AlreadyExecuted() public {
         vm.deal(address(wallet), 10 ether);
-        
         vm.prank(signer1);
         wallet.submitTransaction(recipient, 1 ether, "");
-        
         vm.prank(signer2);
         wallet.confirmTransaction(0);
-        
         vm.prank(signer3);
         wallet.confirmTransaction(0);
-
         vm.prank(signer2);
         vm.expectRevert(MultiSigWallet.ALREADY_EXECUTED.selector);
         wallet.revokeConfirmation(0);
+    }
+
+    function test_RevokeConfirmation_InvalidSigner() public {
+        vm.prank(signer1);
+        wallet.submitTransaction(recipient, 1 ether, "");
+        vm.prank(nonSigner);
+        vm.expectRevert(MultiSigWallet.INVALID_SIGNER.selector);
+        wallet.revokeConfirmation(0);
+    }
+
+    function test_ConfirmTransaction_NonExistentTransaction() public {
+        vm.prank(signer1);
+        vm.expectRevert();
+        wallet.confirmTransaction(999);
+    }
+
+    function test_RevokeConfirmation_NonExistentTransaction() public {
+        vm.prank(signer1);
+        vm.expectRevert();
+        wallet.revokeConfirmation(999);
     }
 
     // =============================================================
