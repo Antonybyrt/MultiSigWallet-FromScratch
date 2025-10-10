@@ -1,6 +1,6 @@
 # MultiSig Wallet from Scratch
 
-
+A secure multisignature wallet developed in Solidity without using external libraries.
 
 ## 🎯 Features
 
